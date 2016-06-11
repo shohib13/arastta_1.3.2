@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<code>Atualiza Estoque  Update Stock</code>
+	<name>Atualiza Estoque  Update Stock</name>
+	<version>1.7.0</version>
+	<author>Denis Cunha - Swat PC</author>
+	<link>https://www.swatpc.com.br</link>
+
+      <file path="admin/view/template/catalog/product_list.tpl">
+			<operation>
+                <search trim="true"><![CDATA[ <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-search"></i> <?php echo $button_filter; ?></button> ]]></search>
+				
+                <add position="after" offset="1">
+                    <![CDATA[
+					
+            <div class="col-sm-4">
+					
+                <label class="control-label" for="input-refresh-stock"><?php echo $entry_stock ;?></label>
+				<div class="input-group">
+                <input type="text" id="quantidade-stock" value="1"  placeholder="Informe a quantidade" id="input-refresh-stock" class="form-control" />
+				<span class="input-group-btn">
+				<button type="button" id="button-refresh-stock" onclick="atualiza_stock();" class="btn btn-warning"><i class="fa fa fa-refresh"></i> <?php echo $entry_atualiza ;?></button>
+				</span>
+				</div>
+                 
+          </div>
+
+		<div id="refresh-stock" class="form-group"> 
+					  <script type="text/javascript">
+                            $(document).ready(function(){
+                              $('#button-refresh').on('click', function() {
+                                    $('div#refresh-stock').show();
+                                });
+                            });
+                            function atualiza_stock(){
+                                $.ajax({
+                                    url: 'index.php?route=catalog/product/atualiza&token=<?php echo $token; ?>',
+                                    data: {qtd_stock: $('#quantidade-stock').val()},
+                                    type: 'post',
+                                    beforeSend: function() {
+                                        $('#button-refresh-stock').after('<span class="wait">&nbsp;<img src="view/image/loading.gif" alt="" /></span>');
+                                    },
+                                    complete: function() {
+                                        $('.wait').remove();
+                                    },
+                                    success: function(data){
+                                        alert('<?php echo $entry_success; ?>');
+										location.reload(); 
+                                        $('div#refresh-stock').prepend(data);
+                                       
+                                    }
+                                });
+                            }
+                        </script>
+						</div>
+                ]]></add>
+            </operation>
+        </file>
+		
+		   <file path="admin/controller/catalog/product.php">
+		   <operation>
+                <search trim="true"><![CDATA[ $data['column_action'] = $this->language->get('column_action'); ]]></search>
+                <add position="after">
+                    <![CDATA[
+					$data['entry_stock'] = $this->language->get('entry_stock');
+					$data['entry_atualiza'] = $this->language->get('entry_atualiza');	
+					$data['entry_success'] = $this->language->get('entry_success');	
+				    $data['entry_resultado'] = $this->language->get('entry_resultado');
+					$data['entry_close'] = $this->language->get('entry_close');
+					$data['entry_prod'] = $this->language->get('entry_prod');
+					$data['entry_antiga'] = $this->language->get('entry_antiga');
+					$data['entry_nova'] = $this->language->get('entry_nova');				
+               ]]></add>
+            </operation>
+					
+            <operation>
+                <search trim="true"><![CDATA[ public function autocomplete() { ]]></search>
+                <add position="before">
+                    <![CDATA[
+                         function atualiza(){
+						    $this->load->language('catalog/product');
+                            $this->load->model('catalog/product');
+                            $products = $this->model_catalog_product->getProducts();
+        
+                            foreach ($products as $product){
+     
+                                $this->db->query("UPDATE " . DB_PREFIX . "product SET quantity = '" . $this->request->post['qtd_stock'] . "' WHERE product_id = '" . (int)$product['product_id'] . "'");
+                                
+                              
+                            }          
+                           
+                        } 
+	
+                    ]]>
+                </add>
+            </operation>
+        </file>
+		
+		  <file path="admin/language/en-GB/catalog/product.php">
+            <operation>
+                <search trim="true"><![CDATA[ // Entry ]]></search>
+                <add position="after">
+                    <![CDATA[
+					
+					$_['entry_resultado']             = 'Report Updated Products';
+					$_['entry_close']             = 'Close';
+					$_['entry_prod']             = 'Product:';
+					$_['entry_antiga']             = 'Old Quantity:';
+					$_['entry_nova']             = 'New Quantity:';
+					$_['entry_stock']             = 'Update Products All';
+					$_['entry_success']             = 'Success! Update Products All';
+					$_['entry_atualiza']             = 'Update';
+                        
+                    ]]>
+                </add>
+            </operation>
+        </file>
+		
+		<file path="admin/language/pt-BR/catalog/product.php">
+            <operation>
+                <search trim="true"><![CDATA[ // Entry ]]></search>
+                <add position="after">
+                    <![CDATA[
+					
+					$_['entry_resultado']             = 'Relatório dos Produtos Atualizados';
+					$_['entry_close']             = 'Fechar';
+					$_['entry_prod']             = 'Produto:';
+					$_['entry_antiga']             = 'Quantidade Antiga:';
+					$_['entry_nova']             = 'Quantidade nova:';
+					$_['entry_stock']             = 'Atualizar Estoque para Todos Produtos';
+					$_['entry_success']             = 'Produtos atualizados com Sucesso.';
+					$_['entry_atualiza']             = 'Atualizar';
+                        
+                    ]]>
+                </add>
+            </operation>
+        </file>
+</modification>
